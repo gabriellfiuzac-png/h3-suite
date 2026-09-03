@@ -1,0 +1,27 @@
+{
+  "pictures": [
+    {"slot": 1, "key": "face", "label": "Face / Identity", "short": "Face", "tooltip": "Strongest facial identity reference: face shape, eyes, nose, mouth, skin, proportions. Authority for close-ups and facial performance. Not wardrobe, product, background, style or lighting."},
+    {"slot": 2, "key": "character_sheet", "label": "Character Sheet", "short": "Body", "tooltip": "Full character/body reference: proportions, silhouette, height/build, front/side/back. Together with Face they form one identity system (same character)."},
+    {"slot": 3, "key": "wardrobe", "label": "Wardrobe", "short": "Outfit", "tooltip": "Clothing, garments, fabric/materials, outfit colors, shoes, accessories only. Not a character identity source — wins over incidental clothing visible in Face/Character Sheet."},
+    {"slot": 4, "key": "product", "label": "Product / Hero Object", "short": "Product", "tooltip": "The exact hero commercial product or object: shape, proportions, materials, packaging, branding. Usually highest priority for ads."},
+    {"slot": 5, "key": "style", "label": "Visual Style", "short": "Style", "tooltip": "Art direction, aesthetic treatment, palette tendency, texture, production-design mood, rendering language. Not the literal background."},
+    {"slot": 6, "key": "lighting", "label": "Lighting / Grade", "short": "Lighting", "tooltip": "Global scene lighting + color grade authority: light direction, key/fill, shadows, white balance, contrast, saturation, final grade. Not the physical background/location."},
+    {"slot": 7, "key": "background", "label": "Background / Environment", "short": "Environment", "tooltip": "The actual physical environment: room, landscape, architecture, set, location, spatial layout. Supplies the place; Lighting supplies the light."},
+    {"slot": 8, "key": "extra_1", "label": "Extra Reference 1", "short": "Extra 1", "tooltip": "No fixed role. Only use if you explain its purpose in the prompt (logo, packaging detail, prop, secondary angle, etc.)."},
+    {"slot": 9, "key": "extra_2", "label": "Extra Reference 2", "short": "Extra 2", "tooltip": "No fixed role. Same as Extra 1 — only use with an explicit assigned purpose."}
+  ],
+  "videos": [
+    {"slot": 1, "key": "motion_video", "label": "Motion Guide", "short": "Motion", "tooltip": "Body motion, gesture, performance timing, choreography, action rhythm. Hard motion/performance authority when active. Does not carry identity, wardrobe, background or camera."},
+    {"slot": 2, "key": "camera_video", "label": "Camera Guide", "short": "Camera", "tooltip": "Camera trajectory, height, viewpoint, pan/tilt/dolly/orbit/crane, framing and shot-size progression, screen-space staging. Hard camera + composition authority when active. Can be built with the Camera Director below instead of uploading a file."},
+    {"slot": 3, "key": "source_video", "label": "Source / Edit Video", "short": "Source", "tooltip": "Existing video to edit/reinterpret. Always used with PRESERVE / CHANGE logic: preserve timing/composition/blocking, change only what other active references override."}
+  ],
+  "audios": [
+    {"slot": 1, "key": "audio_primary", "label": "Audio 1 — Primary", "short": "Audio 1", "tooltip": "Primary external voice/music/rhythm reference. Its exact job (voice timbre, delivery, music, singing) depends on what you describe in the prompt."},
+    {"slot": 2, "key": "audio_2", "label": "Audio 2 — Optional", "short": "Audio 2", "tooltip": "Optional second external audio reference. Only used when you give it an explicit role (second voice, ambience, secondary music cue)."}
+  ],
+  "notes": {
+    "source_video_audio": "When Source Video (Video 3) is active and neither Audio 1 nor Audio 2 is active, its own paired soundtrack is preserved automatically for the final output. This is handled by the workflow's audio-priority routing, not a separate reference slot.",
+    "max_active_refs": 12,
+    "zero_tolerance_rule": "Never mention a <Picture N>/<Video N>/<Audio N> tag in the prompt for a slot that is not enabled — the semantic node rejects prompts that reference inactive slots."
+  }
+}

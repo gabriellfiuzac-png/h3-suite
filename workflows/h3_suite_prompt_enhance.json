@@ -1,0 +1,36 @@
+{
+  "H3:enh_clip": {
+    "inputs": {
+      "clip_name": "gemma_3_12B_it_fp8_scaled.safetensors",
+      "type": "ltxv",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": { "title": "Load CLIP (H3 Suite Prompt Enhance)" }
+  },
+  "H3:enh_gen": {
+    "inputs": {
+      "clip": ["H3:enh_clip", 0],
+      "prompt": "",
+      "max_length": 900,
+      "sampling_mode": "on",
+      "sampling_mode.temperature": 0.7,
+      "sampling_mode.top_k": 64,
+      "sampling_mode.top_p": 0.95,
+      "sampling_mode.min_p": 0.05,
+      "sampling_mode.repetition_penalty": 1.15,
+      "sampling_mode.seed": 0
+    },
+    "class_type": "TextGenerate",
+    "_meta": { "title": "Generate Text (H3 Suite Prompt Enhance)" }
+  },
+  "H3:enh_save": {
+    "inputs": {
+      "text": ["H3:enh_gen", 0],
+      "filename_prefix": "h3-suite/prompt_enhance",
+      "format": "txt"
+    },
+    "class_type": "SaveText",
+    "_meta": { "title": "Save Text" }
+  }
+}

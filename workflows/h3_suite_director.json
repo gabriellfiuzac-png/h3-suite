@@ -1,0 +1,164 @@
+{
+  "H3:unet": {
+    "inputs": {
+      "unet_name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": { "title": "UNETLoader (H3 REF2VA)" }
+  },
+  "H3:clip": {
+    "inputs": {
+      "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "type": "minimax",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": { "title": "CLIPLoader (H3 Text/Vision Encoder)" }
+  },
+  "H3:vae_video": {
+    "inputs": { "vae_name": "minimax_h3_video_vae_fp16.safetensors" },
+    "class_type": "VAELoader",
+    "_meta": { "title": "VAELoader (H3 Video VAE)" }
+  },
+  "H3:vae_audio": {
+    "inputs": { "vae_name": "minimax_h3_audio_vae_fp32.safetensors" },
+    "class_type": "VAELoader",
+    "_meta": { "title": "VAELoader (H3 Audio VAE)" }
+  },
+  "H3:resolution": {
+    "inputs": { "preset": "H3 Native Landscape (1344x768)" },
+    "class_type": "H3ResolutionPreset",
+    "_meta": { "title": "H3 Resolution Preset" }
+  },
+  "H3:duration": {
+    "inputs": { "seconds": 6, "fps": 24 },
+    "class_type": "H3DurationPlanner",
+    "_meta": { "title": "H3 Duration Planner" }
+  },
+  "H3:seed": {
+    "inputs": { "noise_seed": 123456789, "control_after_generate": "fixed" },
+    "class_type": "RandomNoise",
+    "_meta": { "title": "RandomNoise (Seed)" }
+  },
+  "H3:scheduler": {
+    "inputs": {
+      "model": ["H3:unet", 0],
+      "scheduler": "simple",
+      "steps": 20,
+      "denoise": 1
+    },
+    "class_type": "BasicScheduler",
+    "_meta": { "title": "BasicScheduler" }
+  },
+  "H3:samplerselect": {
+    "inputs": { "sampler_name": "res_multistep" },
+    "class_type": "KSamplerSelect",
+    "_meta": { "title": "KSamplerSelect" }
+  },
+  "H3:semantic": {
+    "inputs": {
+      "clip": ["H3:clip", 0],
+      "vae": ["H3:vae_video", 0],
+      "audio_vae": ["H3:vae_audio", 0],
+      "prompt": "",
+      "width": ["H3:resolution", 0],
+      "height": ["H3:resolution", 1],
+      "length": ["H3:duration", 0],
+      "ref_image_size": "match",
+      "wardrobe_head_crop_pct": 18,
+      "strict_missing_tags": true
+    },
+    "class_type": "H3SemanticReferenceToVideo",
+    "_meta": { "title": "H3 Semantic Reference Director" }
+  },
+  "H3:condstrength": {
+    "inputs": {
+      "conditioning": ["H3:semantic", 0],
+      "visual_strength": 0.999,
+      "audio_strength": 1
+    },
+    "class_type": "H3ConditionStrength",
+    "_meta": { "title": "H3 Condition Strength" }
+  },
+  "H3:freetext": {
+    "inputs": {
+      "conditioning": ["H3:condstrength", 0],
+      "clip": ["H3:clip", 0]
+    },
+    "class_type": "H3FreeTextEncoder",
+    "_meta": { "title": "H3 Free Text Encoder (VRAM)" }
+  },
+  "H3:guider": {
+    "inputs": {
+      "model": ["H3:unet", 0],
+      "conditioning": ["H3:freetext", 0]
+    },
+    "class_type": "BasicGuider",
+    "_meta": { "title": "BasicGuider" }
+  },
+  "H3:sampler": {
+    "inputs": {
+      "noise": ["H3:seed", 0],
+      "guider": ["H3:guider", 0],
+      "sampler": ["H3:samplerselect", 0],
+      "sigmas": ["H3:scheduler", 0],
+      "latent_image": ["H3:semantic", 1]
+    },
+    "class_type": "SamplerCustomAdvanced",
+    "_meta": { "title": "SamplerCustomAdvanced" }
+  },
+  "H3:decode_video": {
+    "inputs": {
+      "samples": ["H3:sampler", 0],
+      "vae": ["H3:vae_video", 0]
+    },
+    "class_type": "VAEDecode",
+    "_meta": { "title": "VAEDecode (Video)" }
+  },
+  "H3:decode_audio": {
+    "inputs": {
+      "samples": ["H3:sampler", 0],
+      "vae": ["H3:vae_audio", 0]
+    },
+    "class_type": "VAEDecodeAudio",
+    "_meta": { "title": "VAEDecodeAudio" }
+  },
+  "H3:audiopriority": {
+    "inputs": {
+      "generated_audio": ["H3:decode_audio", 0]
+    },
+    "class_type": "H3SourceEditAudioPriority",
+    "_meta": { "title": "H3 Source-Edit Audio Priority" }
+  },
+  "H3:trim": {
+    "inputs": {
+      "images": ["H3:decode_video", 0],
+      "audio": ["H3:audiopriority", 0],
+      "output_frames": ["H3:duration", 1],
+      "fps": 24
+    },
+    "class_type": "H3TrimAVToFrames",
+    "_meta": { "title": "H3 Trim A/V To Frames" }
+  },
+  "H3:createvideo": {
+    "inputs": {
+      "images": ["H3:trim", 0],
+      "audio": ["H3:trim", 1],
+      "fps": 24,
+      "bit_depth": 8
+    },
+    "class_type": "CreateVideo",
+    "_meta": { "title": "CreateVideo" }
+  },
+  "H3:savevideo": {
+    "inputs": {
+      "video": ["H3:createvideo", 0],
+      "filename_prefix": "h3-suite/h3_suite",
+      "format": "auto",
+      "codec": "auto"
+    },
+    "class_type": "SaveVideo",
+    "_meta": { "title": "SaveVideo" }
+  }
+}
