@@ -65,6 +65,56 @@ OPTIONAL_REPOS = [
         "git_url": "https://github.com/duckyshell/ComfyUI-MiniMaxH3-FirstBlockCache",
         "provides": ["ApplyMiniMaxH3FirstBlockCache"],
     },
+    {
+        "id": "h3_latent_upscaler",
+        "label": "Comfyui_Minimax_h3_latent_Upscaler (2-pass Latent Upscale)",
+        "folder_name": "Comfyui_Minimax_h3_latent_Upscaler",
+        "git_url": "https://github.com/LBH-123-AI/Comfyui_Minimax_h3_latent_Upscaler",
+        "provides": ["MinimaxH3LatentUpscaler3D"],
+    },
+    {
+        "id": "sol_attn",
+        "label": "ComfyUI-sol-attn (Sol-Attn sparse attention, faster than SageAttention)",
+        "folder_name": "ComfyUI-sol-attn",
+        "git_url": "https://github.com/Saganaki22/ComfyUI-sol-attn",
+        "provides": ["SolAttentionPatch", "MiniMaxH3MemoryEfficientSolAttentionPatch", "MiniMaxH3ScheduledSolAttentionPatch"],
+    },
+    {
+        "id": "mainodes_derope",
+        "label": "ComfyUI-MAINodes (De-RoPE Motion Lab, fixes fast-motion smearing)",
+        "folder_name": "ComfyUI-MAINodes",
+        "git_url": "https://github.com/matlowai/ComfyUI-MAINodes",
+        "provides": ["H3JerkOracle", "H3TimeSmear", "H3V2VInit", "H3InjectSchedule", "H3ExactRecover", "H3AudioRecover", "H3AudioSmear"],
+    },
+    # Motion Guide (References tab "Motion Director") — turns a raw performance
+    # video into an abstracted depth+pose guide for H3's Video 1 slot. Runs as
+    # a real queued ComfyUI graph (workflows/h3_suite_motion_guide.json), not a
+    # synchronous Python render like the Camera Director, so this is three real
+    # node packs rather than one. The DWPose/DensePose checkpoints themselves
+    # are not listed in MODEL_FILES below — comfyui_controlnet_aux's nodes pull
+    # them from Hugging Face Hub on first use, there is no direct-URL/category
+    # download for installer.py to drive for those two.
+    {
+        "id": "video_depth_anything",
+        "label": "ComfyUI-Video-Depth-Anything (Motion Director depth pass)",
+        "folder_name": "ComfyUI-Video-Depth-Anything",
+        "git_url": "https://github.com/yuvraj108c/ComfyUI-Video-Depth-Anything",
+        "provides": ["LoadVideoDepthAnythingModel", "VideoDepthAnythingProcess", "VideoDepthAnythingOutput"],
+    },
+    {
+        "id": "videohelpersuite",
+        "label": "ComfyUI-VideoHelperSuite (Motion Director video I/O)",
+        "folder_name": "comfyui-videohelpersuite",
+        "git_url": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite",
+        "provides": ["VHS_LoadVideo", "VHS_VideoCombine"],
+    },
+    {
+        "id": "controlnet_aux",
+        "label": "comfyui_controlnet_aux (Motion Director DWPose / DensePose)",
+        "folder_name": "comfyui_controlnet_aux",
+        "git_url": "https://github.com/Fannovel16/comfyui_controlnet_aux",
+        "provides": ["DWPreprocessor", "DensePosePreprocessor"],
+    },
 ]
 
 VENDOR_PACKAGE = {
@@ -77,6 +127,34 @@ VENDOR_PACKAGE = {
 
 REQUIRED_PIP = ["av"]
 
+# GPU-accelerated attention backend for KJNodes' "PathchSageAttentionKJ" /
+# "MiniMaxLowVRAMAttention" nodes (see OPTIONAL_REPOS "kjnodes" below).
+# These are real pip wheels, not just the KJNodes source clone -- without
+# them the SageAttention nodes load into the graph but fail at runtime
+# (no SageAttention/Triton backend present). Verified present as of
+# 2026-09-11 on a working install: sageattention 1.0.6, triton-windows
+# 3.6.0.post26 (on-disk site-packages size below, torch itself is not
+# reinstalled here since ComfyUI already requires it).
+OPTIONAL_PIP = [
+    {
+        "id": "sageattention",
+        "label": "sageattention (SageAttention backend for KJNodes' fast-attention patch)",
+        "pip_name": "sageattention",
+        "size_bytes": 3_100_000,
+    },
+    {
+        "id": "triton_windows",
+        "label": "triton-windows (Triton kernels SageAttention compiles against, Windows build)",
+        "pip_name": "triton-windows",
+        "import_name": "triton",  # pip package is "triton-windows", importable module stays "triton"
+        "size_bytes": 171_000_000,
+    },
+]
+
+# size_bytes is the exact on-disk size of the file already present on a
+# working install (2026-09-11) -- used only to total up "how much will
+# this download" in the Setup panel; re-verify if Comfy-Org/LBH-123-AI
+# ever republish these files at a different size.
 MODEL_FILES = [
     {
         "id": "diffusion",
@@ -84,6 +162,7 @@ MODEL_FILES = [
         "filename": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
         "category": "diffusion_models",
         "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+        "size_bytes": 20_970_379_616,
     },
     {
         "id": "text_encoder",
@@ -91,6 +170,7 @@ MODEL_FILES = [
         "filename": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
         "category": "text_encoders",
         "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "size_bytes": 15_687_142_551,
     },
     {
         "id": "video_vae",
@@ -98,6 +178,7 @@ MODEL_FILES = [
         "filename": "minimax_h3_video_vae_fp16.safetensors",
         "category": "vae",
         "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_video_vae_fp16.safetensors",
+        "size_bytes": 5_207_808_496,
     },
     {
         "id": "audio_vae",
@@ -105,6 +186,15 @@ MODEL_FILES = [
         "filename": "minimax_h3_audio_vae_fp32.safetensors",
         "category": "vae",
         "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_audio_vae_fp32.safetensors",
+        "size_bytes": 605_254_808,
+    },
+    {
+        "id": "latent_upscaler_model",
+        "label": "MiniMax H3 3D latent upscaler weights (for the Latent Upscale speed option)",
+        "filename": "minimax_h3_latent_upscaler_3d_bf16.safetensors",
+        "category": "latent_upscale_models",
+        "url": "https://huggingface.co/LBH-123-AI/Minimax_h3_latent_Upscaler/resolve/main/minimax_h3_latent_upscaler_3d_bf16.safetensors",
+        "size_bytes": 690_592_992,
     },
 ]
 
@@ -160,14 +250,27 @@ def status():
     optional = []
     for repo in OPTIONAL_REPOS:
         optional.append({"id": repo["id"], "label": repo["label"], "kind": "custom_node", "ok": _repo_installed(repo)})
+    for pkg in OPTIONAL_PIP:
+        optional.append({
+            "id": pkg["id"], "label": pkg["label"], "kind": "pip",
+            "ok": _pip_installed(pkg.get("import_name", pkg["pip_name"])),
+            "size_bytes": pkg["size_bytes"],
+        })
     for entry in MODEL_FILES:
         path = _model_path(entry)
         optional.append({
             "id": entry["id"], "label": entry["label"], "kind": "model", "ok": path is not None,
-            "filename": entry["filename"], "category": entry["category"],
+            "filename": entry["filename"], "category": entry["category"], "size_bytes": entry["size_bytes"],
         })
 
-    return {"required": required, "optional": optional, "progress": get_progress()}
+    missing_optional_bytes = sum(item.get("size_bytes", 0) for item in optional if not item["ok"])
+
+    return {
+        "required": required,
+        "optional": optional,
+        "progress": get_progress(),
+        "missing_optional_bytes": missing_optional_bytes,
+    }
 
 
 def _pip_installed(pkg):
@@ -259,6 +362,16 @@ def install_optional_repo(item_id):
     raise ValueError(f"Unknown optional repo id: {item_id}")
 
 
+def install_optional_pip(item_id):
+    pkg = next((p for p in OPTIONAL_PIP if p["id"] == item_id), None)
+    if pkg is None:
+        raise ValueError(f"Unknown optional pip id: {item_id}")
+    if _pip_installed(pkg.get("import_name", pkg["pip_name"])):
+        _set_progress(item_id, state="done", detail="already installed")
+        return
+    _run([sys.executable, "-m", "pip", "install", pkg["pip_name"]], item_id)
+
+
 def _download_with_resume(url, dest_path, item_id, expected_size=None):
     part_path = dest_path + ".part"
     existing = os.path.getsize(part_path) if os.path.isfile(part_path) else 0
@@ -301,7 +414,7 @@ def install_model(item_id):
     dest_path = os.path.join(dest_dir, entry["filename"])
     _set_progress(item_id, state="running", detail=f"downloading to {dest_path}")
     try:
-        _download_with_resume(entry["url"], dest_path, item_id)
+        _download_with_resume(entry["url"], dest_path, item_id, expected_size=entry.get("size_bytes"))
     except Exception as e:
         _set_progress(item_id, state="error", detail=str(e))
         raise
@@ -313,6 +426,7 @@ def install_items(item_ids):
     Runs sequentially in the calling thread — callers should run this in a background thread."""
     errors = []
     all_repo_ids = {r["id"]: r for r in (REQUIRED_REPOS + OPTIONAL_REPOS)}
+    optional_pip_ids = {p["id"] for p in OPTIONAL_PIP}
     for item_id in item_ids:
         try:
             if item_id in all_repo_ids:
@@ -321,6 +435,8 @@ def install_items(item_ids):
                 install_vendor_package()
             elif item_id.startswith("pip_"):
                 install_pip(item_id[len("pip_"):])
+            elif item_id in optional_pip_ids:
+                install_optional_pip(item_id)
             elif item_id in {m["id"] for m in MODEL_FILES}:
                 install_model(item_id)
             else:
