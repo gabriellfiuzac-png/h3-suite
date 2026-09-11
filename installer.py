@@ -196,6 +196,81 @@ MODEL_FILES = [
         "url": "https://huggingface.co/LBH-123-AI/Minimax_h3_latent_Upscaler/resolve/main/minimax_h3_latent_upscaler_3d_bf16.safetensors",
         "size_bytes": 690_592_992,
     },
+    # -- "Otimizado" preset ("best minimax qt") hard dependencies -----------
+    # OTIMIZADO_CONFIG in web/h3_suite.js hardcodes these exact filenames for
+    # its unet/vae/lora -- none of the four below were previously tracked
+    # here, so Setup silently reported "nothing missing" even when picking
+    # the "Otimizado" preset would fail on a fresh install. Sources verified
+    # 2026-09-11 (each URL confirmed to resolve, size read from a live HEAD
+    # request against Hugging Face).
+    {
+        "id": "hybrid_unet",
+        "label": "MiniMax H3 Hybrid unet b25-49 int8 (for the \"Otimizado\" preset)",
+        "filename": "minimax_h3_hybrid_fl2va_ref2va_b25-49-int8.safetensors",
+        "category": "diffusion_models",
+        "url": "https://huggingface.co/yantongrui/Minimax-H3-fl2va-ref2va-hybrid-models/resolve/main/minimax_h3_hybrid_fl2va_ref2va_b25-49-int8.safetensors",
+        "size_bytes": 20_970_379_632,
+    },
+    {
+        "id": "video_vae_int8",
+        "label": "H3 video VAE, int8 convrot (for the \"Otimizado\" preset)",
+        "filename": "minimax_h3_video_vae_int8_convrot.safetensors",
+        "category": "vae",
+        "url": "https://huggingface.co/Kijai/MiniMax-H3-experimental/resolve/main/minimax_h3_video_vae_int8_convrot.safetensors",
+        "size_bytes": 3_171_670_912,
+    },
+    {
+        "id": "latent_upscaler_model_fp16",
+        "label": "MiniMax H3 3D latent upscaler weights, fp16 (for the \"Otimizado + Upscale\" preset)",
+        "filename": "minimax_h3_latent_upscaler_3d_fp16.safetensors",
+        "category": "latent_upscale_models",
+        "url": "https://huggingface.co/LBH-123-AI/Minimax_h3_latent_Upscaler/resolve/main/minimax_h3_latent_upscaler_3d_fp16.safetensors",
+        "size_bytes": 690_592_672,
+    },
+    {
+        "id": "lora_ref2v_turbo_8step_768p",
+        "label": "LoRA: MiniMax H3 Ref2V Turbo 8-step 768p (the \"Otimizado\" preset's LoRA)",
+        "filename": "minimax_h3_ref2v_turbo_8step_v1.0_768p_comfyui_bf16.safetensors",
+        "category": "loras",
+        "url": "https://huggingface.co/lightx2v/Minimax-h3-Turbo/resolve/main/minimax_h3_ref2v_turbo_8step_v1.0_768p_comfyui_bf16.safetensors",
+        "size_bytes": 1_956_193_000,
+    },
+    # -- Additional LoRAs -- not required by any hardcoded preset, but
+    # offered in the LoRA dropdown (References tab); tracked here so the
+    # Setup panel can offer them as one-click downloads instead of the user
+    # having to find/place them manually.
+    {
+        "id": "lora_fl2v_turbo_8step",
+        "label": "LoRA: MiniMax H3 Fl2V Turbo 8-step",
+        "filename": "minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16.safetensors",
+        "category": "loras",
+        "url": "https://huggingface.co/lightx2v/Minimax-h3-Turbo/resolve/main/minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16.safetensors",
+        "size_bytes": 1_956_193_000,
+    },
+    {
+        "id": "lora_ref2v_turbo_4step",
+        "label": "LoRA: MiniMax H3 Ref2V Turbo 4-step v0.1",
+        "filename": "minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors",
+        "category": "loras",
+        "url": "https://huggingface.co/lightx2v/Minimax-h3-Turbo/resolve/main/minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors",
+        "size_bytes": 1_956_193_000,
+    },
+    {
+        "id": "lora_turbo_v4",
+        "label": "LoRA: MiniMax H3 Turbo v4 (step600 EMA)",
+        "filename": "minimax_h3_turbo_v4_step600_ema.safetensors",
+        "category": "loras",
+        "url": "https://huggingface.co/larryvrh/MiniMax-H3-Turbo-Lora/resolve/main/minimax_h3_turbo_v4_step600_ema.safetensors",
+        "size_bytes": 779_849_816,
+    },
+    {
+        "id": "lora_realism_people",
+        "label": "LoRA: MiniMax H3 Realism People (t2v/i2v/r2v, trigger word r34l1sm)",
+        "filename": "h3-realism-people-t2v-i2v-r2v.safetensors",
+        "category": "loras",
+        "url": "https://huggingface.co/fal/MiniMax-H3-Realism-People-LoRA/resolve/main/h3-realism-people-t2v-i2v-r2v.safetensors",
+        "size_bytes": 131_229_656,
+    },
 ]
 
 _progress = {}
